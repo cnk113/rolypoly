@@ -135,7 +135,6 @@ rolypoly_link_blocks_and_gwas <- function(rolypoly, ld_folder, r2_threshold = .2
   # nested lists of chrom and then individual blocks
   chrom_block_list <- lapply(split(rolypoly$blocks, f = rolypoly$blocks$chrom),
                              function(chrom) {split(chrom, f = chrom$label)})
-  chrom_block_list <- chrom_block_list[!is.na(chrom_block_list)]
   chrom_gwas_list <- lapply( # make sure we have this key set
     split(rolypoly$gwas, f = rolypoly$gwas$chrom), function(gwas) {
       gwas <- data.table::data.table(gwas)
@@ -164,6 +163,7 @@ rolypoly_link_blocks_and_gwas <- function(rolypoly, ld_folder, r2_threshold = .2
       .verbose = F, .packages = c('rolypoly')
     ) %loop_function% {
       chrom <- chrom_block[[1]][1,]$chrom
+      if(is.na(chrom)) next
       chrom_idx <- paste('chr', chrom, sep = '')
       chrom_ld_file_path <- paste(ld_folder, '/', chrom, '.Rds', sep = '')
       ld_data <- readRDS(chrom_ld_file_path)[(R**2 > r2_threshold), .(SNP_A, SNP_B, R)]
